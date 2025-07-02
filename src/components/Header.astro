@@ -1,0 +1,31 @@
+---
+import type { Author, Note, Link } from "../types/types";
+import Links from "./Links.astro";
+import Authors from "./Authors.astro";
+import Notes from "./Notes.astro";
+
+interface Props {
+  title: string;
+  authors: Author[];
+  institution?: string;
+  conference?: string;
+  notes?: Note[];
+  links: Link[];
+}
+
+//在.astro 文件中，组件（如 <Header ... />）传进来的所有参数都保存在Astro.props中
+const { title, authors, institution, conference, notes, links } = Astro.props as Props;
+---
+
+<header class="flex flex-col gap-10 items-center mb-6">
+  <h1>{title}</h1>
+  <div class="flex flex-col gap-6 items-center">
+    <Authors authors={authors} />
+    {institution && (
+      <p class="text-center text-xl">{institution}</p>
+    )}
+    {conference && <p class="text-center">{conference}</p>}
+    {notes && <Notes notes={notes} />}
+    {links && <Links links={links} />}
+  </div>
+</header>

@@ -1,0 +1,141 @@
+---
+layout: ../layouts/Layout.astro
+title: "MoReMouse: Monocular Reconstruction of Laboratory Mouse"
+#description: Simple project page template for your research paper, built with Astro and Tailwind CSS
+---
+
+import Header from "../components/Header.astro";
+import Video from "../components/Video.astro";
+import HighlightedSection from "../components/HighlightedSection.astro";
+import SmallCaps from "../components/SmallCaps.astro";
+import Figure from "../components/Figure.astro";
+import Image from "../components/Image.astro";
+import TwoColumns from "../components/TwoColumns.astro";
+import YouTubeVideo from "../components/YouTubeVideo.astro";
+import LaTeX from "../components/LaTeX.astro";
+
+import { ImageComparison } from "../components/ImageComparison.tsx";
+
+import outside from "../assets/outside.mp4";
+import teaser from "../assets/teaser.png";
+import structure from "../assets/structure.jpg";
+import avatar_pipeline from "../assets/mouse_avatar_pipeline.png";
+import Splat from "../components/Splat.tsx"
+import dogsDiffc from "../assets/dogs-diffc.png"
+import dogsTrue from "../assets/dogs-true.png"
+
+import CodeBlock from "../components/CodeBlock.astro";
+import Table from "../components/Table.astro";
+export const components = {pre: CodeBlock, table: Table}
+
+<Header
+  title={frontmatter.title}
+  authors={[
+    {
+      name: "Yuan Zhong",
+      notes: ["*"],
+    },
+    {
+      name: "Jingxiang Sun",
+      notes: ["*"],
+    },
+    {
+      name: "Liang An",
+      
+      notes: ["†"],
+    },
+    {
+      name: "Yebin Liu",
+      url: "https://liuyebin.com/",
+      notes: ["†"],
+    },
+  ]}
+  institution="Tsinghua University"
+  notes={[
+    {
+      symbol: "*",
+      text: "Equal Contribution",
+    },
+    {
+      symbol: "†",
+      text: "Corresponding Author",
+    },
+  ]}
+  links={[
+    {
+      name: "arXiv",
+      url: "",
+      icon: "academicons:arxiv",
+    },
+    {
+      name: "Paper",
+      url: "",
+      icon: "ri:file-pdf-2-line",
+    },
+    //{
+    //  name: "Code",
+    //  url: "https://github.com/RomanHauksson/academic-project-astro-template",
+    //  icon: "ri:github-line",
+    //},
+    //{
+    //  name: "Bluesky",
+    //  url: "",
+    //  icon: "ri:bluesky-line"
+    //}
+  ]}
+  />
+
+<Video source={outside} />
+
+<HighlightedSection>
+
+## Abstract
+
+Laboratory mice play a crucial role in biomedical research, yet accurate 3D mouse surface motion reconstruction remains challenging due to their complex non-rigid geometric deformations and textureless appearance. Moreover, the absence of structured 3D datasets severely hinders the progress beyond sparse keypoint tracking. 
+To narrow the gap, we present MoReMouse, the first monocular dense 3D reconstruction network tailored for laboratory mice. To achieve this goal, we highlight three key designs. First, we construct the first high-fidelity dense-view synthetic dataset for mice, by rendering our self-designed realistic Gaussian mouse avatar. Second, MoReMouse adopts a transformer-based feedforward architecture with triplane representation, achieving high-quality 3D surface generation from a single image. Third, we create geodesic-based continuous correspondence embeddings on mouse surface, which serve as strong semantic priors to improve reconstruction stability and surface consistency. 
+Extensive quantitative and qualitative experiments demonstrate that MoReMouse significantly outperforms existing open-source methods in accuracy and robustness. Our code and data will be released to the community. 
+
+</HighlightedSection>
+
+## MoReMouse
+
+Given a single-view input (top-left, captured using an iPhone 15 Pro), MoReMouse predicts high-fidelity surface geometry and appearance using a transformer-based triplane architecture. The model is trained on a dataset constructed from real multi-view videos fitted to a Gaussian mouse avatar. Our method supports fast inference and outputs RGB renderings, semantic embeddings, and normal maps from a single image.
+<Figure>
+  <Image slot="figure" source={teaser} altText="Diagram of the transformer deep learning architecture." />
+</Figure>
+
+## Architecture of the MoReMouse Pipeline
+
+Given a monocular input image, a DINO-V2 encoder extracts high-level image features, which are processed by a transformer-based decoder to generate a triplane representation. 
+These triplanes, combined with learnable positional embeddings, are queried by a Multi-Head MLP to predict per-point color, density, and geodesic embedding. 
+Rendering is performed via either NeRF (for volumetric supervision) or DMTet (for explicit geometry output), producing RGB images, color-coded embeddings, and surface meshes.
+<Figure>
+  <Image slot="figure" source={structure} altText="Diagram of the transformer deep learning architecture." />
+</Figure>
+
+## Gaussian Mouse Avatar Dataset Generation
+
+Our synthetic dataset is built using a high-fidelity **Gaussian mouse avatar**. We begin by fitting a skeletal mesh model to multi-view recordings of real mice using 2D keypoints and silhouette constraints, resulting in anatomically plausible pose parameters <LaTeX formula="\Psi" inline />. From this fitted mesh, we compute a baseline Gaussian position map in UV space, denoted as <LaTeX formula="\mu_{\Psi_l}" inline />, where each valid texel corresponds to a Gaussian point.
+
+To enhance this representation, a convolutional neural network (CNN) predicts:
+
+- the **position offset map** <LaTeX formula="\Delta \mu_{\Psi_l}" inline />,
+- the **Gaussian color** <LaTeX formula="c" inline />,
+- and **anisotropic attributes** including rotation <LaTeX formula="q" inline />, scale <LaTeX formula="s" inline />, and opacity <LaTeX formula="o" inline />.
+
+The final deformed Gaussian positions are computed as:
+
+<LaTeX formula="\mu'_{\Psi_l} = \mathcal{D}_{\Psi_l}(\mu_0 + \Delta \mu_{\Psi_l})" />
+
+where <LaTeX formula="\mu_0" inline /> is the UV map of the neutral pose and <LaTeX formula="\mathcal{D}_{\Psi_l}" inline /> is the LBS-based deformation function.
+
+Finally, we render the avatar using **Gaussian Splatting**, producing diverse and photorealistic synthetic images for training monocular 3D reconstruction models.
+
+<Figure>
+  <Image slot="figure" source={avatar_pipeline} altText="Diagram of the transformer deep learning architecture." />
+</Figure>
+
+## BibTeX citation
+
+
+
